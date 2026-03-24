@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultas - Sistema Concilig</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .consulta-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f1f3f5;
+            border-radius: 6px;
+        }
+
+        .container {
+            max-width: 1100px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background-color: white;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        .input-group {
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
+            padding: 9px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="index.html">Página Inicial</a>
+        <a href="consultas.html">Consultas</a>
+        <a href="importacao.html">Importar Contratos</a>
+    </nav>
+
+    <div class="container">
+        <h1>Consultas</h1>
+
+        <div style="margin-bottom: 20px;">
+            <label for="selectFiltro" style="font-size: 16px; font-weight: bold;">Seleciona a consulta:</label>
+            <select id="selectFiltro" onchange="alterarFiltro()"
+                style="padding: 8px; font-size: 16px; border-radius: 4px; margin-left: 10px; width: 350px;">
+                <option value="filtro1">Importações</option>
+                <option value="filtro2">Contratos</option>
+                <option value="filtro3">Resumo por Cliente</option>
+            </select>
+        </div>
+
+        <div class="consulta-section" id="filtro1">
+            <h3>Importações</h3>
+            <p>Consulta dos arquivos importados e o usuário que realizou a importação</p>
+            <button type="button" id="btnConsultarImportacoes">Buscar Arquivos</button>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome do Arquivo</th>
+                        <th>Data de Importação</th>
+                        <th>Usuário</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyImportacoes">
+                    <!-- -->
+                    <tr>
+                        <td colspan="4" style="text-align: center;">Nenhum dado carregado...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="consulta-section" id="filtro2" style="display: none;">
+            <h3>Contratos</h3>
+            <p>Consulta dos contratos importados</p>
+            <button type="button" id="btnConsultarContratos" onclick="getContratos()">Buscar Contratos</button>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Contrato</th>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Produto</th>
+                        <th>Vencimento</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyContratos">
+                    <!-- resultado do getContratos() -->
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Nenhum dado carregado...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="consulta-section" id="filtro3" style="display: none;">
+            <h3>Resumo por Cliente</h3>
+            <p>Consulta do valor total dos contratos do cliente, juntamente com o maior atraso em dias. (Dias entre o vencimento e a data atual)</p>
+
+            <div class="input-group">
+                <input type="text" id="inputCpfCliente" placeholder="Digite o CPF do cliente...">
+                <button type="button" id="btnConsultarResumo">Pesquisar CPF</button>
+            </div>
+
+            <div id="divResumoCliente"
+                style="margin-top: 20px; padding: 15px; background-color: #e9ecef; border-left: 5px solid #0056b3; border-radius: 4px;">
+                <p><strong>Cliente:</strong> <span id="resumoNome">---</span></p>
+                <p><strong>Valor Total dos Contratos:</strong> <span id="resumoValor">R$ 0,00</span></p>
+                <p><strong>Maior Atraso:</strong> <span id="resumoAtraso">0</span> dias</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+
+        // Funcao criada para alternar entre filtros
+        function alterarFiltro() {
+            $('.consulta-section').hide();
+            $('#' + $('#selectFiltro').val()).show();
+        }
+
+        function getContratos() {
+            const $tbody = $('#tbodyContratos');
+
+            $.ajax({
+
+                url: "/api/Consultas/contratos",
+                type: "GET",
+                success: function (data) {
+                    console.log(data);
+                    $tbody.empty();
+
+                    if (data.length === 0) {
+                        $tbody.html('<tr><td colspan="3" style="text-align:center;">Nenhum contrato registrado!</td></tr>');
+                        return;
+                    }
+
+                    data.forEach(c => {
+
+                        // dataVenc esta vindo neste padrao: yyyy-mm-dd hh:mm:ss:0000000
+                        const dataFormatada = new Date(c.dataVenc).toLocaleDateString('pt-BR');
+
+                        const valorFormatado = c.valor.toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL'
+                        });
+
+                        $tbody.append(`
+                                <tr>
+                                    <td>${c.nome}</td>
+                                    <td>${c.cpf}</td>
+                                    <td>${c.numContrato}</td>
+                                    <td>${c.produto}</td>
+                                    <td>${dataFormatada}</td>
+                                    <td>${valorFormatado}</td>
+                                </tr>
+                            `);
+                    });
+                },
+                error: function (xhr) {
+                    alert("Erro ao buscar contratos!");
+                }
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>

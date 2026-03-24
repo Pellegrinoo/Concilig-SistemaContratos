@@ -54,7 +54,7 @@ namespace Concilig_SistemaContratos.Controllers
             return Ok(new { Mensagem = $"{contratosParaSalvar.Count} contratos importados com sucesso!" });
         }*/
 
-        [HttpPost]
+        [HttpPost("importarContratos")]
         public async Task<IActionResult> ImportarContratos(IFormFile arquivo)
         {
             // Validacao basica
@@ -73,7 +73,8 @@ namespace Concilig_SistemaContratos.Controllers
 
             try
             {
-                using (var reader = new StreamReader(arquivo.OpenReadStream()))
+                // Aplicando tratativa para UTF8
+                using (var reader = new StreamReader(arquivo.OpenReadStream(), System.Text.Encoding.Latin1))
                 {
                     bool cabecalho = true;
 

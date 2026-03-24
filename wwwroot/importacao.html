@@ -9,16 +9,12 @@
 <body>
     <nav>
         <a href="index.html">Página Inicial</a>
+        <a href="consultas.html">Consultas</a>
         <a href="importacao.html">Importar Contratos</a>
     </nav>
     <div class="container">
         <h1>Upload de CSV</h1>
-        
-        <form action="/api/Importacao" method="post" enctype="multipart/form-data">
-            <input type="file" name="arquivo" accept=".csv" required />
-            <br>
-            <button type="submit">Enviar Arquivo</button>
-        </form>
+
         <div>
             <h3>Upload de contratos</h3>
             <input type="file" id="inputArquivoCsv" accept=".csv" required />
@@ -41,7 +37,7 @@
             formData.append("arquivo", input.files[0]);
 
             $.ajax({
-                url: "/api/Importacao",
+                url: "/api/Importacao/ImportarContratos",
                 type: "POST",
                 data: formData,
                 contentType: false,
