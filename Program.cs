@@ -25,6 +25,10 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+// Criados para permitir uso do wwwroot
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.MapControllers();
 
 app.Run();

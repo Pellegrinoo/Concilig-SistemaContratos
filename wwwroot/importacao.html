@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Importar Contratos</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">Página Inicial</a>
+        <a href="importacao.html">Importar Contratos</a>
+    </nav>
+    <div class="container">
+        <h1>Upload de CSV</h1>
+        
+        <form action="/api/Importacao" method="post" enctype="multipart/form-data">
+            <input type="file" name="arquivo" accept=".csv" required />
+            <br>
+            <button type="submit">Enviar Arquivo</button>
+        </form>
+        <div>
+            <h3>Upload de contratos</h3>
+            <input type="file" id="inputArquivoCsv" accept=".csv" required />
+            <br>
+            <button onclick="importaContratos()">Importar</button>
+        </div>
+    </div>
+
+ <script>
+        function importaContratos(){
+            console.log("teste")
+            var input = $('#inputArquivoCsv')[0];
+            
+            if (input.files.length === 0) {
+                alert("Selecione um arquivo");
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append("arquivo", input.files[0]);
+
+            $.ajax({
+                url: "/api/Importacao",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(data){
+                    alert("Sucesso: " + data.mensagem + "\nTotal: " + data.quantidade); 
+                },
+                error: function(xhr){
+                    console.log(xhr);
+                    alert("Erro ao importar planilha!");
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
