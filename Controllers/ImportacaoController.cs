@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Concilig_SistemaContratos.Data;
 using SistemaContratos_Concilig.Models;
 using System.Collections;
+using System.Globalization;
 
 namespace Concilig_SistemaContratos.Controllers
 {
@@ -100,11 +101,13 @@ namespace Concilig_SistemaContratos.Controllers
                         var contrato = new Contrato
                         {
                             Nome = colunas[0],
-                            Cpf = colunas[1],
+                            // Criando tratativa para limpar "-" e "."
+                            Cpf = new string(colunas[1].Where(char.IsDigit).ToArray()),
                             NumContrato = int.Parse(colunas[2]),
                             Produto = colunas[3],
                             DataVenc = DateTime.Parse(colunas[4]),
-                            Valor = decimal.Parse(colunas[5], System.Globalization.CultureInfo.InvariantCulture)
+                            // tratativa para evitar erro de "," ou "."
+                            Valor = decimal.Parse(colunas[5], new CultureInfo("pt-BR"))
                         };
 
                         novaImportacao.Contratos.Add(contrato);

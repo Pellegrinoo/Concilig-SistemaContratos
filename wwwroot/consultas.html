@@ -77,7 +77,7 @@
         <div class="consulta-section" id="filtro1">
             <h3>Importações</h3>
             <p>Consulta dos arquivos importados e o usuário que realizou a importação</p>
-            <button type="button" id="btnConsultarImportacoes">Buscar Arquivos</button>
+            <button type="button" id="btnConsultarImportacoes" onclick="getImportacoes()">Buscar Arquivos</button>
 
             <table>
                 <thead>
@@ -89,7 +89,7 @@
                     </tr>
                 </thead>
                 <tbody id="tbodyImportacoes">
-                    <!-- -->
+                    <!-- resultado do getImportacoes() -->
                     <tr>
                         <td colspan="4" style="text-align: center;">Nenhum dado carregado...</td>
                     </tr>
@@ -124,18 +124,25 @@
 
         <div class="consulta-section" id="filtro3" style="display: none;">
             <h3>Resumo por Cliente</h3>
-            <p>Consulta do valor total dos contratos do cliente, juntamente com o maior atraso em dias. (Dias entre o vencimento e a data atual)</p>
+            <p>Consulta do valor total dos contratos do cliente, juntamente com o maior atraso em dias. (Dias entre o
+                vencimento e a data atual)</p>
 
             <div class="input-group">
                 <input type="text" id="inputCpfCliente" placeholder="Digite o CPF do cliente...">
-                <button type="button" id="btnConsultarResumo">Pesquisar CPF</button>
+                <button type="button" id="btnConsultarResumo" onclick="getResumoCliente()">Pesquisar CPF</button>
             </div>
 
             <div id="divResumoCliente"
                 style="margin-top: 20px; padding: 15px; background-color: #e9ecef; border-left: 5px solid #0056b3; border-radius: 4px;">
-                <p><strong>Cliente:</strong> <span id="resumoNome">---</span></p>
-                <p><strong>Valor Total dos Contratos:</strong> <span id="resumoValor">R$ 0,00</span></p>
-                <p><strong>Maior Atraso:</strong> <span id="resumoAtraso">0</span> dias</p>
+                <p id="resumoMsgPadrao"><strong>Selecione um CPF</strong></p>
+
+                <div id="blocoDadosCliente" style="display: none;">
+                    <p><strong>Cliente:</strong> <span id="resumoNome">---</span></p>
+                    <p><strong>Valor Total dos Contratos:</strong> <span id="resumoValor">R$ 0,00</span></p>
+                    <p><strong>Maior Atraso:</strong> <span id="resumoAtraso">0</span> dias</p>
+                </div>
+
+                <p id="resumoMsgErro" style="color: red; display: none;"><strong>CPF não encontrado!</strong></p>
             </div>
         </div>
 
@@ -170,6 +177,9 @@
                         // dataVenc esta vindo neste padrao: yyyy-mm-dd hh:mm:ss:0000000
                         const dataFormatada = new Date(c.dataVenc).toLocaleDateString('pt-BR');
 
+                        // Regex criado para formatar exibicao do CPF no formato xxx.xxx.xxx-xx
+                        const cpfFormatado = c.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
+
                         const valorFormatado = c.valor.toLocaleString('pt-BR', {
                             style: 'currency',
                             currency: 'BRL'
@@ -177,9 +187,9 @@
 
                         $tbody.append(`
                                 <tr>
-                                    <td>${c.nome}</td>
-                                    <td>${c.cpf}</td>
                                     <td>${c.numContrato}</td>
+                                    <td>${c.nome}</td>
+                                    <td>${cpfFormatado}</td>
                                     <td>${c.produto}</td>
                                     <td>${dataFormatada}</td>
                                     <td>${valorFormatado}</td>
@@ -191,6 +201,72 @@
                     alert("Erro ao buscar contratos!");
                 }
             });
+        }
+
+        function getImportacoes() {
+            $tbody = $('#tbodyImportacoes');
+
+            $.ajax({
+                url: "/api/Consultas/importacoes",
+                type: "GET",
+                success: function (data) {
+                    console.log(data);
+                    $tbody.empty();
+
+                    if (data.length === 0) {
+                        $tbody.html('<tr><td colspan="3" style="text-align:center;">Nenhuma importação registrada!</td></tr>');
+                        return;
+                    }
+
+                    data.forEach(i => {
+
+                        // DataImp esta vindo neste padrao: yyyy-mm-dd hh:mm:ss:0000000
+                        const dataFormatada = new Date(i.dataImp).toLocaleDateString('pt-BR');
+
+                        $tbody.append(`
+                                <tr>
+                                    <td>${i.id}</td>
+                                    <td>${i.nomeArquivo}</td>
+                                    <td>${dataFormatada}</td>
+                                    <td>${i.usuario.nome}</td>
+                                </tr>
+                            `);
+                    });
+                },
+                error: function (xhr) {
+                    alert("Erro ao buscar importações!");
+                }
+            });
+        }
+
+        function getResumoCliente() {
+            const cpfRaw = $('#inputCpfCliente').val();
+            // Para limpar caracteres especiais
+            const cpf = cpfRaw.replace(/\D/g, '');
+            $('#resumoMsgPadrao').hide();
+            $('#resumoMsgErro').hide();
+            $('#blocoDadosCliente').hide();
+
+            $.ajax({
+                url: "/api/Consultas/consultaCliente/" + cpf,
+                type: "GET",
+                success: function (data) {
+                    if (data) {
+                $('#resumoNome').text(data.nome);
+                $('#resumoValor').text(data.valorTotal.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                }));
+                $('#resumoAtraso').text(data.diasAtraso);
+
+                $('#blocoDadosCliente').fadeIn();
+            }
+                },
+                error: function (xhr) {
+                    $('#resumoMsgErro').show();
+                }
+            });
+
         }
 
     </script>
