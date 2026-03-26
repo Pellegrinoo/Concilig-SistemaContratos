@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,12 +15,14 @@
             padding: 30px;
             background-color: #f1f3f5;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         .login-container h1 {
             text-align: center;
             margin-bottom: 25px;
         }
+
         .login-container input {
             width: 100%;
             padding: 12px;
@@ -28,10 +31,12 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
+
         .login-container button {
             width: 100%;
             padding: 12px;
         }
+
         .login-container a {
             display: block;
             text-align: center;
@@ -39,6 +44,7 @@
             color: #0056b3;
             text-decoration: none;
         }
+
         #error-message {
             color: red;
             text-align: center;
@@ -47,6 +53,7 @@
         }
     </style>
 </head>
+
 <body>
     <nav>
         <a href="index.html">Página Inicial</a>
@@ -54,17 +61,53 @@
 
     <div class="login-container">
         <h1>Cadastrar</h1>
-        <form id="login-form" onsubmit="handleLogin(event)">
+        <form id="login-form">
             <input type="text" id="nome" placeholder="Nome" required>
             <input type="text" id="login" placeholder="Usuário" required>
             <input type="password" id="senha" placeholder="Senha" required>
             <button type="submit">Cadastrar</button>
         </form>
     </div>
-    
+
 
     <script>
-        
+
+        $('#login-form').on('submit', function (event) {
+            event.preventDefault();
+
+            const nome = $('#nome').val();
+            const login = $('#login').val();
+            const senha = $('#senha').val();
+
+            if (!nome || !login || !senha) {
+                alert("Por favor, preencha todos os campos!");
+                return;
+            }
+
+            $.ajax({
+
+                url: "/api/cadastro/cadastroUsuario",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    nome: nome,
+                    login: login,
+                    senha: senha
+                }),
+                success: function (data) {
+                    let nome = data.nome;
+
+                    alert("Usuario " + nome + " cadastrado com sucesso!");
+
+                    window.location.href = 'login.html';
+                },
+                error: function (xhr) {
+                    alert("Erro ao cadastrar usuário!");
+                }
+            });
+        })
+
     </script>
 </body>
+
 </html>

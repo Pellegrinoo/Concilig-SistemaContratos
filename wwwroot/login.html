@@ -81,9 +81,9 @@
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ login: login, senha: senha }),
-                success: function(response) {
-                    localStorage.setItem('jwt_token', response.token);
-                    localStorage.setItem('username', response.nomeUsuario);
+                success: function(data) {
+                    localStorage.setItem('jwt_token', data.token);
+                    localStorage.setItem('username', data.nomeUsuario);
                     
                     $('#error-message').hide();
                     
