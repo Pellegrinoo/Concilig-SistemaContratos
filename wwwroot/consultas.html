@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultas - Sistema Concilig</title>
+    <title>Consultas</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
@@ -149,6 +149,25 @@
     </div>
 
     <script>
+
+        // Setup para enviar token em todas as requisicoes
+        $(function() {
+            const token = localStorage.getItem('jwt_token');
+            if (token) {
+                $.ajaxSetup({
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 401) {
+                            window.location.href = 'login.html';
+                        }
+                    }
+                });
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
 
         // Funcao criada para alternar entre filtros
         function alterarFiltro() {

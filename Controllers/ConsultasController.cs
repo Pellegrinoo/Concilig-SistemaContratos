@@ -3,12 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using SistemaContratos_Concilig.Models;
 using Concilig_SistemaContratos.Data;
 using Concilig_SistemaContratos.DTO;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Concilig_SistemaContratos.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class Consultas : ControllerBase
     {
 

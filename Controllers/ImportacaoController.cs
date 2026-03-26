@@ -3,11 +3,14 @@ using Concilig_SistemaContratos.Data;
 using SistemaContratos_Concilig.Models;
 using System.Collections;
 using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Concilig_SistemaContratos.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ImportacaoController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -68,7 +71,8 @@ namespace Concilig_SistemaContratos.Controllers
             {
                 NomeArquivo = arquivo.FileName,
                 DataImp = DateTime.Now,
-                IdUsuario = 1,
+                // Capturando pela Sessao
+                IdUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0"),
                 Contratos = new List<Contrato>()
             };
 

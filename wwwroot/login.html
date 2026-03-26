@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #f1f3f5;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .login-container h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+        }
+        .login-container a {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #0056b3;
+            text-decoration: none;
+        }
+        #error-message {
+            color: red;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Página Inicial</a>
+    </nav>
+
+    <div class="login-container">
+        <h1>Login</h1>
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <input type="text" id="login" placeholder="Usuário" required>
+            <input type="password" id="senha" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+            <a href="cadastrar.html" class="btn-cadastrar">Cadastrar</a>
+        </form>
+        
+        <p id="error-message">Usuário ou senha inválidos.</p>
+    </div>
+    
+
+    <script>
+        if (localStorage.getItem('jwt_token')) {
+            window.location.href = 'index.html';
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const login = $('#login').val();
+            const senha = $('#senha').val();
+            
+            $.ajax({
+                url: '/api/autenticacao/login',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ login: login, senha: senha }),
+                success: function(response) {
+                    localStorage.setItem('jwt_token', response.token);
+                    localStorage.setItem('username', response.nomeUsuario);
+                    
+                    $('#error-message').hide();
+                    
+                    window.location.href = 'index.html';
+                },
+                error: function(xhr) {
+                    $('#error-message').show();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

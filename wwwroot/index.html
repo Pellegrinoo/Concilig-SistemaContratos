@@ -3,19 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <title>Página Inicial</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <nav>
         <a href="index.html">Página Inicial</a>
         <a href="consultas.html">Consultas</a>
-        <a href="importacao.html">Importar Contratos</a>
+        <a href="importacao.html">Importar Contratos</a> 
+        <a href="login.html" id="login-link">Login</a>
+        <a href="#" id="logout-link" style="display: none;" onclick="logout()">Sair</a>
     </nav>
     <div class="container">
         <h1>Sistema de Importação de Contratos</h1>
         <p>** Colocar anotacoes **</p>
         <p>- Por conta do prazo curto, não trabalhei com Service Pattern, deixando o trabalho bruto no controller mesmo</p>
         <p>- Por conta do prazo curto não consegui realizar muitos testes para cenários de erros, testando as tratativas e capturas de exceção</p>
+        <h4>Desenvolvimento com auxílio da IA</h4>
+        <p>Autenticação</p>
+        <p>CSS</p>
+        <!--<p>Bem-vindo ao sistema. Utilize a navegação para acessar as funcionalidades.</p>
+        <div id="user-info" style="display: none;">
+            <p>Olá, <span id="username"></span>!</p>
+        </div> -->
     </div>
+
+    <<script>
+        function logout() {
+            localStorage.removeItem('jwt_token');
+            window.location.href = 'login.html';
+        }
+
+        if (localStorage.getItem('jwt_token')) {
+            $('#login-link').hide();
+            $('#logout-link').show();
+        }
+    </script>
 </body>
 </html>

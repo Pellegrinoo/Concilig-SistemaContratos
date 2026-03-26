@@ -24,8 +24,27 @@
     </div>
 
  <script>
+
+        // Setup para enviar token em todas as requisicoes
+        /*$(function() {
+            const token = localStorage.getItem('jwt_token');
+            if (token) {
+                $.ajaxSetup({
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 401) {
+                            window.location.href = 'login.html';
+                        }
+                    }
+                });
+            } else {
+                window.location.href = 'login.html';
+            }
+        });*/
+
         function importaContratos(){
-            console.log("teste")
             var input = $('#inputArquivoCsv')[0];
             
             if (input.files.length === 0) {
@@ -36,9 +55,18 @@
             var formData = new FormData();
             formData.append("arquivo", input.files[0]);
 
+            const token = localStorage.getItem('jwt_token');
+            if(!token){
+                window.location.href = 'login.html';
+                return;
+            }
+
             $.ajax({
                 url: "/api/Importacao/ImportarContratos",
                 type: "POST",
+                headers:{
+                    'Authorization': 'Bearer ' + token
+                },
                 data: formData,
                 contentType: false,
                 processData: false,
